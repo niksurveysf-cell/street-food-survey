@@ -166,11 +166,7 @@
       <div class="logo">SF</div>
       <div>
         <h2>Street Food Survey</h2>
-        <div class="subtitle"><div>
-  <h2>Taste Buds Craving Test</h2>
-  <div class="subtitle">We’re bringing the combo to your block. Pick the combo. We’ll deliver the vibe 😍</div>
-</div>
-</div>
+        <div class="subtitle">We’re bringing the combo to your block. Pick the combo. We’ll deliver the vibe 😍</div>
       </div>
     </header>
 
@@ -180,12 +176,10 @@
     <div id="formContainer" aria-live="polite"></div>
 
     <div class="controls">
-      <button id="submitBtn" class="primary">Submit</button>
+      <button id="submitBtn" class="primary">Lock my combo</button>
       <button id="clearBtn" class="ghost">Clear local draft</button>
       <div id="submitMsg" class="hint" style="margin-left:8px"></div>
     </div>
-
-    <p class="hint">Tip: add your name as the first question so responses are easy to identify.</p>
   </div>
 
   <script>
@@ -251,7 +245,6 @@
     // ===== helpers to parse config options =====
     function parseOptions(optString) {
       if (!optString) return [];
-      // support both comma and semicolon separators
       return optString.split(/[,;]+/).map(s => {
         const parts = s.split(":");
         return { label: parts[0].trim(), price: parts[1] ? parts[1].trim() : "" };
@@ -282,7 +275,6 @@
         label.textContent = labelText;
         wrapper.appendChild(label);
 
-        // helper to set data-key for later submit
         function setDataKey(el) {
           el.dataset.key = key;
           el.dataset.category = category || "";
@@ -304,7 +296,7 @@
             });
             sel.onchange = () => saveField(key, sel.value, category, priceDefault || "");
             wrapper.appendChild(sel);
-          } else { // radio
+          } else {
             const box = document.createElement("div");
             box.className = "options";
             parseOptions(q.options).forEach(o => {
@@ -360,7 +352,7 @@
           ta.placeholder = q.placeholder || "";
           ta.onblur = () => saveField(key, ta.value, category, priceDefault);
           wrapper.appendChild(ta);
-        } else { // text or default
+        } else {
           const inp = document.createElement("input");
           inp.type = q.type === "number" ? "number" : "text";
           setDataKey(inp);
@@ -372,7 +364,6 @@
         container.appendChild(wrapper);
       });
 
-      // update progress after building
       updateProgressUI();
     }
 
@@ -396,18 +387,14 @@
         document.getElementById("progressBar").style.width = "0%";
         return;
       }
-      let filled = 0;
       const seenKeys = new Set();
       inputs.forEach(el => {
-        // for checkboxes/radios we count by name/key
         const k = el.dataset.key;
         if (!k) return;
         if (k.includes(":")) {
-          // checkbox variant: count as filled if checked
           if (el.checked) seenKeys.add(k.split(":")[0] + ":" + k.split(":")[1]);
         } else {
           if (el.type === "radio") {
-            // radios handled separately
             const radios = document.getElementsByName(k);
             for (const r of radios) if (r.checked) { seenKeys.add(k); break; }
           } else if (el.type === "checkbox") {
@@ -417,7 +404,6 @@
           }
         }
       });
-      // approximate progress: unique keys filled / total unique keys
       const uniqueKeys = new Set();
       inputs.forEach(el => {
         const k = el.dataset.key;
@@ -432,20 +418,18 @@
     async function submitAll() {
       const elements = document.querySelectorAll("[data-key]");
       const answers = {};
-      // collect values: for checkboxes we collect comma list, for radios pick checked, for inputs take value
       const grouped = {};
       elements.forEach(el => {
         const rawKey = el.dataset.key;
         if (!rawKey) return;
         if (rawKey.includes(":")) {
-          // checkbox variant key: "q1:Option"
           const parts = rawKey.split(":");
           const base = parts[0];
           const opt = parts[1];
           grouped[base] = grouped[base] || [];
           if (el.checked) grouped[base].push(opt);
         } else if (el.type === "radio") {
-          // radios share name; skip here (we'll handle by name)
+          // handled later
         } else if (el.type === "checkbox") {
           grouped[rawKey] = grouped[rawKey] || [];
           if (el.checked) grouped[rawKey].push(el.value);
@@ -454,7 +438,6 @@
         }
       });
 
-      // handle radio groups
       const radios = document.querySelectorAll("input[type=radio]");
       const radioNames = new Set();
       radios.forEach(r => radioNames.add(r.name));
@@ -463,20 +446,16 @@
         grouped[name] = sel ? sel.value : "";
       });
 
-      // convert arrays to comma strings
       Object.keys(grouped).forEach(k => {
         if (Array.isArray(grouped[k])) answers[k] = grouped[k].join(", ");
         else answers[k] = grouped[k];
       });
 
-      // final payload
       const payload = { sessionId, submitted: true, answers };
       try {
         const res = await fetch(WEBAPP_URL, { method: "POST", body: JSON.stringify(payload) });
-        const text = await res.text();
-        document.getElementById("submitMsg").textContent = "Thanks — your responses were submitted.";
-        // optionally clear local draft
-        // localStorage.removeItem("sf_session_id");
+        await res.text();
+        document.getElementById("submitMsg").textContent = "Thanks bruh — we’ll bring your picks to the next drop. 💪";
       } catch (err) {
         console.error("Submit failed", err);
         document.getElementById("submitMsg").textContent = "Submission failed — try again.";
@@ -494,21 +473,11 @@
       const config = await loadConfig();
       buildForm(config);
 
-      // wire up buttons
       document.getElementById("submitBtn").addEventListener("click", submitAll);
       document.getElementById("clearBtn").addEventListener("click", clearDraft);
 
-      // update progress periodically (in case autosave changes)
       setInterval(updateProgressUI, 700);
     })();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
