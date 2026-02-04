@@ -7,157 +7,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#f4f7fb;
-      --card:#ffffff;
-      --accent:#1a73e8;
-      --muted:#6b7280;
-      --radius:12px;
-      --shadow:0 8px 30px rgba(20,30,60,0.08);
+      --bg:#f4f7fb; --card:#fff; --accent:#1a73e8; --muted:#6b7280;
+      --radius:12px; --shadow:0 8px 30px rgba(20,30,60,0.08);
     }
     html,body{height:100%}
     body{
-      margin:0;
-      font-family:"Roboto", Arial, Helvetica, sans-serif;
+      margin:0; font-family:"Roboto", Arial, sans-serif;
       background:linear-gradient(180deg,var(--bg),#fff);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      padding:28px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
+      padding:28px; display:flex; justify-content:center;
     }
-
-    .container{
-      width:100%;
-      max-width:820px;
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:28px;
-      box-sizing:border-box;
-      margin-bottom:28px;
-    }
-
-    header{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      margin-bottom:12px;
-    }
-    .logo{
-      width:56px;
-      height:56px;
-      border-radius:10px;
-      background:linear-gradient(135deg,var(--accent),#6aa8ff);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#fff;
-      font-weight:700;
-      font-size:20px;
-      box-shadow:0 6px 18px rgba(26,115,232,0.18);
-    }
+    .container{ width:100%; max-width:820px; background:var(--card); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:28px; box-sizing:border-box; }
+    header{ display:flex; gap:16px; align-items:center; margin-bottom:12px; }
+    .logo{ width:56px; height:56px; border-radius:10px; background:linear-gradient(135deg,var(--accent),#6aa8ff);
+      display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:20px; }
     h2{ margin:0; font-size:20px; color:#0f1724; font-weight:600; }
     .subtitle{ color:var(--muted); font-size:0.95rem; margin-top:4px }
-
-    .progress{
-      height:8px;
-      background:#eef5ff;
-      border-radius:999px;
-      overflow:hidden;
-      margin-top:14px;
-    }
-    .progress > i{
-      display:block;
-      height:100%;
-      background:linear-gradient(90deg,var(--accent),#6aa8ff);
-      width:0%;
-      transition:width .25s ease;
-    }
-
+    .progress{ height:8px; background:#eef5ff; border-radius:999px; overflow:hidden; margin-top:14px; }
+    .progress > i{ display:block; height:100%; background:linear-gradient(90deg,var(--accent),#6aa8ff); width:0%; transition:width .25s ease; }
     #status{ color:var(--muted); margin:10px 0 18px; font-size:0.95rem }
-
-    .field-row{
-      margin:14px 0;
-      padding:12px;
-      border-radius:10px;
-      background:linear-gradient(180deg, rgba(250,250,252,0.6), rgba(250,250,252,0.4));
-      border:1px solid #f0f3f8;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .field-row label{
-      font-weight:600;
-      color:#111827;
-      font-size:0.98rem;
-    }
-
+    .field-row{ margin:14px 0; padding:12px; border-radius:10px; background:linear-gradient(180deg, rgba(250,250,252,0.6), rgba(250,250,252,0.4));
+      border:1px solid #f0f3f8; display:flex; flex-direction:column; gap:8px; }
+    .field-row label{ font-weight:600; color:#111827; font-size:0.98rem; }
     input[type="text"], input[type="number"], textarea, select{
-      width:100%;
-      padding:10px 12px;
-      border-radius:8px;
-      border:1px solid #e6e9ef;
-      box-sizing:border-box;
-      font-size:15px;
-      color:#0f1724;
-      background:#fff;
-      outline:none;
-      transition:box-shadow .12s ease, border-color .12s ease;
+      width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6e9ef; font-size:15px; background:#fff;
     }
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(26,115,232,0.9);
-      box-shadow:0 6px 18px rgba(26,115,232,0.08);
-    }
-    textarea{ resize:vertical; min-height:72px; }
-
     .options{ display:flex; flex-direction:column; gap:8px; }
-    .checkbox-item, .radio-item{
-      display:flex; align-items:center; gap:10px; font-size:0.96rem; color:#111827;
-    }
-    .price-badge{
-      margin-left:auto;
-      background:#f1f5f9;
-      color:#0f1724;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:0.85rem;
-      border:1px solid #e6eef8;
-    }
-
-    .controls{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      margin-top:18px;
-      flex-wrap:wrap;
-    }
-    button.primary{
-      background:var(--accent);
-      color:#fff;
-      border:none;
-      padding:10px 16px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:600;
-      box-shadow:0 8px 20px rgba(26,115,232,0.12);
-    }
-    button.ghost{
-      background:transparent;
-      color:var(--accent);
-      border:1px solid rgba(26,115,232,0.12);
-      padding:9px 14px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:600;
-    }
+    .controls{ display:flex; gap:12px; align-items:center; margin-top:18px; flex-wrap:wrap; }
+    button.primary{ background:var(--accent); color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }
+    button.ghost{ background:transparent; color:var(--accent); border:1px solid rgba(26,115,232,0.12); padding:9px 14px; border-radius:10px; cursor:pointer; font-weight:600; }
     .hint{ color:var(--muted); font-size:0.95rem; margin-top:10px }
-
-    @media (max-width:520px){
-      .container{ padding:18px }
-      header{ gap:10px }
-      .logo{ width:48px; height:48px; font-size:18px }
-    }
+    @media (max-width:520px){ .container{ padding:18px } .logo{ width:48px; height:48px; font-size:18px } }
   </style>
 </head>
 <body>
@@ -187,6 +67,14 @@
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyAv_jsMrG0VXxfroqJ5invTumj6C2VZoEsZA0irC7UmGuu_396yZfMDNUM1hMIFIIw_w/exec";
     const CONFIG_URL = WEBAPP_URL + "?config=1";
 
+    // ===== City -> Region mapping (edit as needed) =====
+    const cityToRegion = {
+      "Bengaluru":"South","Mangaluru":"South","Udupi":"South","Mysuru":"South","Hubli-Dharwad":"South",
+      "Manipal":"South","Kochi":"South","Kozhikode":"South","Chennai":"South","Hyderabad":"South",
+      "Pune":"West","Mumbai":"West","Goa":"West","Bhubaneswar":"East","Kolkata":"East",
+      "Delhi":"North","Jaipur":"North","Ahmedabad":"West","Surat":"West","Lucknow":"North"
+    };
+
     // ===== session id persisted in localStorage =====
     let sessionId = localStorage.getItem("sf_session_id");
     if (!sessionId) {
@@ -194,11 +82,11 @@
       localStorage.setItem("sf_session_id", sessionId);
     }
 
-    // ===== autosave queue with debounce =====
+    // ===== autosave queue with debounce (region included) =====
     const pending = {};
     let debounceTimer = null;
-    function scheduleSave(fieldName, fieldValue, itemCategory = "", price = "") {
-      pending[fieldName] = { fieldValue, itemCategory, price };
+    function scheduleSave(fieldName, fieldValue, itemCategory = "", price = "", region = "") {
+      pending[fieldName] = { fieldValue, itemCategory, price, region };
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(flushPending, 350);
       updateProgressUI();
@@ -208,12 +96,12 @@
       const entries = Object.entries(pending);
       if (!entries.length) return;
       for (const [fieldName, payload] of entries) {
-        await sendToServer(fieldName, payload.fieldValue, payload.itemCategory, payload.price);
+        await sendToServer(fieldName, payload.fieldValue, payload.itemCategory, payload.price, payload.region);
       }
       for (const k of entries.map(e => e[0])) delete pending[k];
     }
 
-    async function sendToServer(fieldName, fieldValue, itemCategory = "", price = "") {
+    async function sendToServer(fieldName, fieldValue, itemCategory = "", price = "", region = "") {
       try {
         const res = await fetch(WEBAPP_URL, {
           method: "POST",
@@ -222,24 +110,21 @@
             fieldName,
             fieldValue,
             itemCategory,
-            price
+            price,
+            region
           })
         });
         try {
           const json = await res.json();
-          if (json && json.status && json.status !== "ok") {
-            console.warn("Server returned error:", json);
-          }
-        } catch (e) {
-          // ignore parse errors
-        }
+          if (json && json.status && json.status !== "ok") console.warn("Server returned error:", json);
+        } catch (e) { /* ignore parse errors */ }
       } catch (err) {
         console.error("Save error:", err);
       }
     }
 
-    function saveField(fieldKey, value, category = "", price = "") {
-      scheduleSave(fieldKey, value, category, price);
+    function saveField(fieldKey, value, category = "", price = "", region = "") {
+      scheduleSave(fieldKey, value, category, price, region);
     }
 
     // ===== helpers to parse config options =====
@@ -251,7 +136,7 @@
       }).filter(o => o.label);
     }
 
-    // ===== build form from config rows =====
+    // ===== build form from config rows (adds city dropdown if key === "city") =====
     function buildForm(config) {
       const container = document.getElementById("formContainer");
       container.innerHTML = "";
@@ -261,7 +146,7 @@
       }
       document.getElementById("status").textContent = "";
 
-      config.forEach((q, idx) => {
+      config.forEach((q) => {
         const type = (q.type || "").toLowerCase();
         const labelText = q.label || q.key || "question";
         const key = q.key || ("q_" + Math.random().toString(36).slice(2,6));
@@ -280,29 +165,57 @@
           el.dataset.category = category || "";
         }
 
-        if (type === "select" || type === "radio") {
+        // Special handling: if the config key is "city" (or label contains City), render top-20 dropdown
+        if (key.toLowerCase() === "city" || labelText.toLowerCase().includes("city")) {
+          const sel = document.createElement("select");
+          setDataKey(sel);
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "Choose your city";
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          sel.appendChild(placeholder);
+
+          // top 20 list (edit as needed)
+          const cities = ["Bengaluru","Mangaluru","Udupi","Mysuru","Hubli-Dharwad","Manipal","Kochi","Kozhikode","Chennai","Hyderabad",
+                          "Pune","Mumbai","Goa","Bhubaneswar","Kolkata","Delhi","Jaipur","Ahmedabad","Surat","Lucknow","Other"];
+          cities.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c;
+            opt.textContent = c;
+            sel.appendChild(opt);
+          });
+
+          sel.onchange = () => {
+            if (!sel.value) return;
+            const chosenCity = sel.value;
+            const region = cityToRegion[chosenCity] || (chosenCity === "Other" ? "" : "");
+            // save city field
+            saveField(key, chosenCity, category, priceDefault || "", region);
+            // also save region as its own field so Responses sheet gets a region row
+            if (region) saveField("region", region, "", "", region);
+            // if user picked Other, optionally show a small text input for manual city (not implemented here)
+          };
+          wrapper.appendChild(sel);
+        }
+        else if (type === "select" || type === "radio") {
           if (type === "select") {
             const sel = document.createElement("select");
             setDataKey(sel);
-            // placeholder option: disabled and selected so it's not selectable
             const placeholder = document.createElement("option");
             placeholder.value = "";
             placeholder.textContent = "Select";
             placeholder.disabled = true;
             placeholder.selected = true;
             sel.appendChild(placeholder);
-
             parseOptions(q.options).forEach(o => {
               const opt = document.createElement("option");
               opt.value = o.label;
               opt.textContent = o.label;
               sel.appendChild(opt);
             });
-            // only save when a real option is chosen
             sel.onchange = () => {
-              if (sel.value && sel.value !== "") {
-                saveField(key, sel.value, category, priceDefault || "");
-              }
+              if (sel.value && sel.value !== "") saveField(key, sel.value, category, priceDefault || "");
             };
             wrapper.appendChild(sel);
           } else {
@@ -312,19 +225,12 @@
               const row = document.createElement("label");
               row.className = "radio-item";
               const r = document.createElement("input");
-              r.type = "radio";
-              r.name = key;
-              r.value = o.label;
-              r.dataset.key = key;
+              r.type = "radio"; r.name = key; r.value = o.label; r.dataset.key = key;
               r.onchange = () => saveField(key, r.value, category, o.price || "");
-              const txt = document.createElement("span");
-              txt.textContent = o.label;
               row.appendChild(r);
-              row.appendChild(txt);
+              row.appendChild(document.createTextNode(o.label));
               if (o.price) {
-                const badge = document.createElement("span");
-                badge.className = "price-badge";
-                badge.textContent = "₹" + o.price;
+                const badge = document.createElement("span"); badge.className = "price-badge"; badge.textContent = "₹" + o.price;
                 row.appendChild(badge);
               }
               box.appendChild(row);
@@ -338,18 +244,12 @@
             const row = document.createElement("label");
             row.className = "checkbox-item";
             const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.value = o.label;
-            cb.dataset.key = key + ":" + o.label;
+            cb.type = "checkbox"; cb.value = o.label; cb.dataset.key = key + ":" + o.label;
             cb.onchange = () => saveField(key + ":" + o.label, cb.checked ? o.label : "", category, o.price || "");
-            const txt = document.createElement("span");
-            txt.textContent = o.label;
             row.appendChild(cb);
-            row.appendChild(txt);
+            row.appendChild(document.createTextNode(o.label));
             if (o.price) {
-              const badge = document.createElement("span");
-              badge.className = "price-badge";
-              badge.textContent = "₹" + o.price;
+              const badge = document.createElement("span"); badge.className = "price-badge"; badge.textContent = "₹" + o.price;
               row.appendChild(badge);
             }
             box.appendChild(row);
@@ -392,73 +292,55 @@
     // ===== progress UI =====
     function updateProgressUI() {
       const inputs = document.querySelectorAll("[data-key]");
-      if (!inputs.length) {
-        document.getElementById("progressBar").style.width = "0%";
-        return;
-      }
+      if (!inputs.length) { document.getElementById("progressBar").style.width = "0%"; return; }
       const seenKeys = new Set();
       inputs.forEach(el => {
-        const k = el.dataset.key;
-        if (!k) return;
-        if (k.includes(":")) {
-          if (el.checked) seenKeys.add(k.split(":")[0] + ":" + k.split(":")[1]);
-        } else {
+        const k = el.dataset.key; if (!k) return;
+        if (k.includes(":")) { if (el.checked) seenKeys.add(k.split(":")[0] + ":" + k.split(":")[1]); }
+        else {
           if (el.type === "radio") {
             const radios = document.getElementsByName(k);
             for (const r of radios) if (r.checked) { seenKeys.add(k); break; }
-          } else if (el.type === "checkbox") {
-            if (el.checked) seenKeys.add(k);
-          } else {
-            if (el.value && el.value.toString().trim() !== "") seenKeys.add(k);
-          }
+          } else if (el.type === "checkbox") { if (el.checked) seenKeys.add(k); }
+          else { if (el.value && el.value.toString().trim() !== "") seenKeys.add(k); }
         }
       });
       const uniqueKeys = new Set();
-      inputs.forEach(el => {
-        const k = el.dataset.key;
-        if (!k) return;
-        uniqueKeys.add(k.includes(":") ? k.split(":")[0] : k);
-      });
+      inputs.forEach(el => { const k = el.dataset.key; if (!k) return; uniqueKeys.add(k.includes(":") ? k.split(":")[0] : k); });
       const percent = uniqueKeys.size ? Math.round((seenKeys.size / uniqueKeys.size) * 100) : 0;
       document.getElementById("progressBar").style.width = percent + "%";
     }
 
-    // ===== submit all answers as one row (optional final submit) =====
+    // ===== submit all answers as one row (final submit) =====
     async function submitAll() {
       const elements = document.querySelectorAll("[data-key]");
-      const answers = {};
       const grouped = {};
       elements.forEach(el => {
-        const rawKey = el.dataset.key;
-        if (!rawKey) return;
+        const rawKey = el.dataset.key; if (!rawKey) return;
         if (rawKey.includes(":")) {
-          const parts = rawKey.split(":");
-          const base = parts[0];
-          const opt = parts[1];
-          grouped[base] = grouped[base] || [];
-          if (el.checked) grouped[base].push(opt);
+          const parts = rawKey.split(":"); const base = parts[0]; const opt = parts[1];
+          grouped[base] = grouped[base] || []; if (el.checked) grouped[base].push(opt);
         } else if (el.type === "radio") {
           // handled later
         } else if (el.type === "checkbox") {
-          grouped[rawKey] = grouped[rawKey] || [];
-          if (el.checked) grouped[rawKey].push(el.value);
+          grouped[rawKey] = grouped[rawKey] || []; if (el.checked) grouped[rawKey].push(el.value);
         } else {
           grouped[rawKey] = el.value || "";
         }
       });
-
-      const radios = document.querySelectorAll("input[type=radio]");
-      const radioNames = new Set();
+      const radios = document.querySelectorAll("input[type=radio]"); const radioNames = new Set();
       radios.forEach(r => radioNames.add(r.name));
-      radioNames.forEach(name => {
-        const sel = document.querySelector(`input[name="${name}"]:checked`);
-        grouped[name] = sel ? sel.value : "";
-      });
+      radioNames.forEach(name => { const sel = document.querySelector(`input[name="${name}"]:checked`); grouped[name] = sel ? sel.value : ""; });
 
-      Object.keys(grouped).forEach(k => {
-        if (Array.isArray(grouped[k])) answers[k] = grouped[k].join(", ");
-        else answers[k] = grouped[k];
-      });
+      // ensure region is present if city chosen
+      if (grouped.city) {
+        const region = cityToRegion[grouped.city] || "";
+        if (region) grouped.region = region;
+      }
+
+      // convert arrays to comma strings
+      const answers = {};
+      Object.keys(grouped).forEach(k => answers[k] = Array.isArray(grouped[k]) ? grouped[k].join(", ") : grouped[k]);
 
       const payload = { sessionId, submitted: true, answers };
       try {
@@ -481,10 +363,8 @@
     (async function init() {
       const config = await loadConfig();
       buildForm(config);
-
       document.getElementById("submitBtn").addEventListener("click", submitAll);
       document.getElementById("clearBtn").addEventListener("click", clearDraft);
-
       setInterval(updateProgressUI, 700);
     })();
   </script>
