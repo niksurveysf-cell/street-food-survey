@@ -32,6 +32,7 @@
     input[type="text"], input[type="number"], textarea, select{
       width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6e9ef; font-size:15px; background:#fff;
     }
+    .state-display{ margin-top:6px; color:#0f1724; font-weight:600; font-size:0.95rem; }
     .options{ display:flex; flex-direction:column; gap:8px; }
     .controls{ display:flex; gap:12px; align-items:center; margin-top:18px; flex-wrap:wrap; }
     button.primary{ background:var(--accent); color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }
@@ -67,12 +68,18 @@
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyAv_jsMrG0VXxfroqJ5invTumj6C2VZoEsZA0irC7UmGuu_396yZfMDNUM1hMIFIIw_w/exec";
     const CONFIG_URL = WEBAPP_URL + "?config=1";
 
-    // ===== City -> Region mapping (edit as needed) =====
+    // ===== City -> State and Region mapping (includes Mangaluru) =====
+    const cityToState = {
+      "Delhi":"Delhi","Mumbai":"Maharashtra","Bengaluru":"Karnataka","Kolkata":"West Bengal","Chennai":"Tamil Nadu",
+      "Hyderabad":"Telangana","Pune":"Maharashtra","Ahmedabad":"Gujarat","Jaipur":"Rajasthan","Lucknow":"Uttar Pradesh",
+      "Surat":"Gujarat","Chandigarh":"Chandigarh","Coimbatore":"Tamil Nadu","Indore":"Madhya Pradesh","Nagpur":"Maharashtra",
+      "Vadodara":"Gujarat","Bhopal":"Madhya Pradesh","Patna":"Bihar","Guwahati":"Assam","Mangaluru":"Karnataka","Other":""
+    };
     const cityToRegion = {
-      "Bengaluru":"South","Mangaluru":"South","Udupi":"South","Mysuru":"South","Hubli-Dharwad":"South",
-      "Manipal":"South","Kochi":"South","Kozhikode":"South","Chennai":"South","Hyderabad":"South",
-      "Pune":"West","Mumbai":"West","Goa":"West","Bhubaneswar":"East","Kolkata":"East",
-      "Delhi":"North","Jaipur":"North","Ahmedabad":"West","Surat":"West","Lucknow":"North"
+      "Delhi":"North","Mumbai":"West","Bengaluru":"South","Kolkata":"East","Chennai":"South",
+      "Hyderabad":"South","Pune":"West","Ahmedabad":"West","Jaipur":"North","Lucknow":"North",
+      "Surat":"West","Chandigarh":"North","Coimbatore":"South","Indore":"Central","Nagpur":"Central",
+      "Vadodara":"West","Bhopal":"Central","Patna":"East","Guwahati":"Northeast","Mangaluru":"South"
     };
 
     // ===== session id persisted in localStorage =====
@@ -82,11 +89,11 @@
       localStorage.setItem("sf_session_id", sessionId);
     }
 
-    // ===== autosave queue with debounce (region included) =====
+    // ===== autosave queue with debounce (now includes state & region) =====
     const pending = {};
     let debounceTimer = null;
-    function scheduleSave(fieldName, fieldValue, itemCategory = "", price = "", region = "") {
-      pending[fieldName] = { fieldValue, itemCategory, price, region };
+    function scheduleSave(fieldName, fieldValue, itemCategory = "", price = "", region = "", state = "") {
+      pending[fieldName] = { fieldValue, itemCategory, price, region, state };
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(flushPending, 350);
       updateProgressUI();
@@ -96,12 +103,12 @@
       const entries = Object.entries(pending);
       if (!entries.length) return;
       for (const [fieldName, payload] of entries) {
-        await sendToServer(fieldName, payload.fieldValue, payload.itemCategory, payload.price, payload.region);
+        await sendToServer(fieldName, payload.fieldValue, payload.itemCategory, payload.price, payload.region, payload.state);
       }
       for (const k of entries.map(e => e[0])) delete pending[k];
     }
 
-    async function sendToServer(fieldName, fieldValue, itemCategory = "", price = "", region = "") {
+    async function sendToServer(fieldName, fieldValue, itemCategory = "", price = "", region = "", state = "") {
       try {
         const res = await fetch(WEBAPP_URL, {
           method: "POST",
@@ -111,7 +118,8 @@
             fieldValue,
             itemCategory,
             price,
-            region
+            region,
+            state
           })
         });
         try {
@@ -123,8 +131,8 @@
       }
     }
 
-    function saveField(fieldKey, value, category = "", price = "", region = "") {
-      scheduleSave(fieldKey, value, category, price, region);
+    function saveField(fieldKey, value, category = "", price = "", region = "", state = "") {
+      scheduleSave(fieldKey, value, category, price, region, state);
     }
 
     // ===== helpers to parse config options =====
@@ -136,7 +144,7 @@
       }).filter(o => o.label);
     }
 
-    // ===== build form from config rows (adds city dropdown if key === "city") =====
+    // ===== build form from config rows (city dropdown shows state automatically) =====
     function buildForm(config) {
       const container = document.getElementById("formContainer");
       container.innerHTML = "";
@@ -165,7 +173,7 @@
           el.dataset.category = category || "";
         }
 
-        // Special handling: if the config key is "city" (or label contains City), render top-20 dropdown
+        // If the config key is "city" or label mentions city, render top-20 dropdown with Mangaluru
         if (key.toLowerCase() === "city" || labelText.toLowerCase().includes("city")) {
           const sel = document.createElement("select");
           setDataKey(sel);
@@ -176,9 +184,9 @@
           placeholder.selected = true;
           sel.appendChild(placeholder);
 
-          // top 20 list (edit as needed)
-          const cities = ["Bengaluru","Mangaluru","Udupi","Mysuru","Hubli-Dharwad","Manipal","Kochi","Kozhikode","Chennai","Hyderabad",
-                          "Pune","Mumbai","Goa","Bhubaneswar","Kolkata","Delhi","Jaipur","Ahmedabad","Surat","Lucknow","Other"];
+          // top 20 list (includes Mangaluru)
+          const cities = ["Delhi","Mumbai","Bengaluru","Kolkata","Chennai","Hyderabad","Pune","Ahmedabad","Jaipur","Lucknow",
+                          "Surat","Chandigarh","Coimbatore","Indore","Nagpur","Vadodara","Bhopal","Patna","Guwahati","Mangaluru","Other"];
           cities.forEach(c => {
             const opt = document.createElement("option");
             opt.value = c;
@@ -186,17 +194,25 @@
             sel.appendChild(opt);
           });
 
+          // state display (visible to user, not editable)
+          const stateDisplay = document.createElement("div");
+          stateDisplay.className = "state-display";
+          stateDisplay.textContent = ""; // filled on selection
+          wrapper.appendChild(sel);
+          wrapper.appendChild(stateDisplay);
+
           sel.onchange = () => {
             if (!sel.value) return;
             const chosenCity = sel.value;
-            const region = cityToRegion[chosenCity] || (chosenCity === "Other" ? "" : "");
-            // save city field
-            saveField(key, chosenCity, category, priceDefault || "", region);
-            // also save region as its own field so Responses sheet gets a region row
-            if (region) saveField("region", region, "", "", region);
-            // if user picked Other, optionally show a small text input for manual city (not implemented here)
+            const region = cityToRegion[chosenCity] || "";
+            const state = cityToState[chosenCity] || "";
+            // show state to user (only state visible)
+            stateDisplay.textContent = state ? ("State: " + state) : "";
+            // save city, state and region as separate fields
+            saveField(key, chosenCity, category, priceDefault || "", region, state);
+            if (region) saveField("region", region, "", "", region, state);
+            if (state) saveField("state", state, "", "", region, state);
           };
-          wrapper.appendChild(sel);
         }
         else if (type === "select" || type === "radio") {
           if (type === "select") {
@@ -332,10 +348,12 @@
       radios.forEach(r => radioNames.add(r.name));
       radioNames.forEach(name => { const sel = document.querySelector(`input[name="${name}"]:checked`); grouped[name] = sel ? sel.value : ""; });
 
-      // ensure region is present if city chosen
+      // ensure region & state are present if city chosen
       if (grouped.city) {
         const region = cityToRegion[grouped.city] || "";
+        const state = cityToState[grouped.city] || "";
         if (region) grouped.region = region;
+        if (state) grouped.state = state;
       }
 
       // convert arrays to comma strings
