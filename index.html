@@ -50,30 +50,32 @@
     }
 
     async function sendToServer(fieldName, fieldValue, itemCategory = "", price = "") {
-      try {
-        const res = await fetch(WEBAPP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            fieldName,
-            fieldValue,
-            itemCategory,
-            price
-          })
-        });
-        try {
-          const json = await res.json();
-          if (json && json.status && json.status !== "ok") {
-            console.warn("Server returned error:", json);
-          }
-        } catch (e) {
-          // ignore parse errors
-        }
-      } catch (err) {
-        console.error("Save error:", err);
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      // Do NOT set Content-Type to application/json — omit headers to avoid CORS preflight
+      body: JSON.stringify({
+        sessionId,
+        fieldName,
+        fieldValue,
+        itemCategory,
+        price
+      })
+    });
+    // Apps Script returns JSON text; try to parse but ignore parse errors
+    try {
+      const json = await res.json();
+      if (json && json.status && json.status !== "ok") {
+        console.warn("Server returned error:", json);
       }
+    } catch (e) {
+      // ignore parse errors
     }
+  } catch (err) {
+    console.error("Save error:", err);
+  }
+}
+
 
     function saveField(fieldKey, value, category = "", price = "") {
       scheduleSave(fieldKey, value, category, price);
@@ -189,6 +191,7 @@
   </script>
 </body>
 </html>
+
 
 
 
