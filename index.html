@@ -68,19 +68,30 @@
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyAv_jsMrG0VXxfroqJ5invTumj6C2VZoEsZA0irC7UmGuu_396yZfMDNUM1hMIFIIw_w/exec";
     const CONFIG_URL = WEBAPP_URL + "?config=1";
 
-    // ===== City -> State and Region mapping (includes Mangaluru) =====
+    // ===== City -> State and Region mapping (two cities per state, alphabetical) =====
+    // Each state included here has two representative cities (metro + relatively big city).
+    // Cities array below is alphabetical.
     const cityToState = {
-      "Delhi":"Delhi","Mumbai":"Maharashtra","Bengaluru":"Karnataka","Kolkata":"West Bengal","Chennai":"Tamil Nadu",
-      "Hyderabad":"Telangana","Pune":"Maharashtra","Ahmedabad":"Gujarat","Jaipur":"Rajasthan","Lucknow":"Uttar Pradesh",
-      "Surat":"Gujarat","Chandigarh":"Chandigarh","Coimbatore":"Tamil Nadu","Indore":"Madhya Pradesh","Nagpur":"Maharashtra",
-      "Vadodara":"Gujarat","Bhopal":"Madhya Pradesh","Patna":"Bihar","Guwahati":"Assam","Mangaluru":"Karnataka","Other":""
+      "Ahmedabad":"Gujarat","Bengaluru":"Karnataka","Chennai":"Tamil Nadu","Coimbatore":"Tamil Nadu",
+      "Delhi":"Delhi","Guwahati":"Assam","Hyderabad":"Telangana","Indore":"Madhya Pradesh",
+      "Jaipur":"Rajasthan","Lucknow":"Uttar Pradesh","Mangaluru":"Karnataka","Mumbai":"Maharashtra",
+      "Nagpur":"Maharashtra","Patna":"Bihar","Pune":"Maharashtra","Surat":"Gujarat",
+      "Vadodara":"Gujarat","Visakhapatnam":"Andhra Pradesh","Vijayawada":"Andhra Pradesh","Other":""
     };
     const cityToRegion = {
-      "Delhi":"North","Mumbai":"West","Bengaluru":"South","Kolkata":"East","Chennai":"South",
-      "Hyderabad":"South","Pune":"West","Ahmedabad":"West","Jaipur":"North","Lucknow":"North",
-      "Surat":"West","Chandigarh":"North","Coimbatore":"South","Indore":"Central","Nagpur":"Central",
-      "Vadodara":"West","Bhopal":"Central","Patna":"East","Guwahati":"Northeast","Mangaluru":"South"
+      "Ahmedabad":"West","Bengaluru":"South","Chennai":"South","Coimbatore":"South",
+      "Delhi":"North","Guwahati":"Northeast","Hyderabad":"South","Indore":"Central",
+      "Jaipur":"North","Lucknow":"North","Mangaluru":"South","Mumbai":"West",
+      "Nagpur":"Central","Patna":"East","Pune":"West","Surat":"West",
+      "Vadodara":"West","Visakhapatnam":"East","Vijayawada":"East","Other":""
     };
+
+    // ===== Top cities list (alphabetical) - two cities per state where applicable =====
+    const cities = [
+      "Ahmedabad","Bengaluru","Chennai","Coimbatore","Delhi","Guwahati","Hyderabad","Indore",
+      "Jaipur","Lucknow","Mangaluru","Mumbai","Nagpur","Patna","Pune","Surat",
+      "Vadodara","Visakhapatnam","Vijayawada","Other"
+    ];
 
     // ===== session id persisted in localStorage =====
     let sessionId = localStorage.getItem("sf_session_id");
@@ -173,7 +184,7 @@
           el.dataset.category = category || "";
         }
 
-        // If the config key is "city" or label mentions city, render top-20 dropdown with Mangaluru
+        // If the config key is "city" or label mentions city, render top-20 dropdown with state display
         if (key.toLowerCase() === "city" || labelText.toLowerCase().includes("city")) {
           const sel = document.createElement("select");
           setDataKey(sel);
@@ -184,9 +195,7 @@
           placeholder.selected = true;
           sel.appendChild(placeholder);
 
-          // top 20 list (includes Mangaluru)
-          const cities = ["Delhi","Mumbai","Bengaluru","Kolkata","Chennai","Hyderabad","Pune","Ahmedabad","Jaipur","Lucknow",
-                          "Surat","Chandigarh","Coimbatore","Indore","Nagpur","Vadodara","Bhopal","Patna","Guwahati","Mangaluru","Other"];
+          // populate cities (already alphabetical)
           cities.forEach(c => {
             const opt = document.createElement("option");
             opt.value = c;
@@ -208,7 +217,7 @@
             const state = cityToState[chosenCity] || "";
             // show state to user (only state visible)
             stateDisplay.textContent = state ? ("State: " + state) : "";
-            // save city, state and region as separate fields
+            // save city, state and region as separate fields so they appear in Responses
             saveField(key, chosenCity, category, priceDefault || "", region, state);
             if (region) saveField("region", region, "", "", region, state);
             if (state) saveField("state", state, "", "", region, state);
