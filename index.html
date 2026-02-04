@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Street Food Survey</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:18px;max-width:760px;margin:auto}
+    label{display:block;margin-top:14px}
+    .field-row{margin-top:8px}
+    .checkbox-item{display:block;margin:6px 0}
+    .hint{color:#666;margin-top:12px;font-size:0.95em}
+    button{margin-top:12px}
+  </style>
+</head>
+<body>
+  <h2>Street Food Survey</h2>
+  <div id="status" class="hint">Loading form…</div>
+  <div id="formContainer"></div>
+  <p class="hint">Responses autosave as you interact. You can close anytime.</p>
+
+  <script>
+    // ===== CONFIG =====
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxNZo7GUAKoilrmMDB_ezVDSmPj7bWbsgE2tsHny18QtMSiwdJ8eRbTTpqzO1E0LA96MA/exec"; // <-- paste your Apps Script Web App URL here
+    const CONFIG_URL = WEBAPP_URL + "?config=1"; // doGet returns config JSON when called with GET
+
+    // ===== session id persisted in localStorage =====
+    let sessionId = localStorage.getItem("sf_session_id");
+    if (!sessionId) {
+      sessionId = Math.random().toString(36).slice(2, 10);
+      localStorage.setItem("sf_session_id", sessionId);
+    }
+
+    // ===== autosave queue with debounce =====
+    const pending = {};
+    let debounceTimer = null;
+    function scheduleSave(fieldName, fieldValue, itemCategory = "", price = "") {
+      pending[fieldName] = { fieldValue, itemCategory, price };
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(flushPending, 350);
+    }
+
+    async function flushPending() {
+      const entries = Object.entries(pending);
+      if (!entries.length) return;
+      for (const [fieldName, payload] of entries) {
+        await sendToServer(fieldName, payload.fieldValue, payload.itemCategory, payload.price);
+      }
+      for (const k of entries.map(e => e[0])) delete pending[k];
+    }
+
+    async function sendToServer(fieldName, fieldValue, itemCategory = "", price = "") {
+      try {
+        const res = await fetch(WEBAPP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            fieldName,
+            fieldValue,
+            itemCategory,
+            price
+          })
+        });
+        // optional: read response to detect errors
+        try {
+          const json = await res.json();
+          if (json && json.status && json.status !== "ok") {
+            console.warn("Server returned error:", json);
+          }
+        } catch (e) {
+          // ignore parse errors
+        }
+      } catch (err) {
+        console.error("Save error:", err);
+      }
+    }
+
+    function saveField(fieldKey, value, category = "", price = "") {
+      scheduleSave(fieldKey, value, category, price);
+    }
+
+    // ===== helpers to parse config options =====
+    function parseOptions(optString) {
+      if (!optString) return [];
+      return optString.split(";").map(s => {
+        const parts = s.split(":");
+        return { label: parts[0].trim(), price: parts[1] ? parts[1].trim() : "" };
+      });
+    }
+
+    // ===== build form from config rows =====
+    function buildForm(config) {
+      const container = document.getElementById("formContainer");
+      container.innerHTML = "";
+      if (!config || !config.length) {
+        document.getElementById("status").textContent = "No form configuration found. Check the Config sheet.";
+        return;
+      }
+      document.getElementById("status").textContent = "";
+
+      config.forEach(q => {
+        const type = (q.type || "").toLowerCase();
+        const labelText = q.label || q.key || "question";
+        const key = q.key || ("q_" + Math.random().toString(36).slice(2,6));
+        const category = q.category || "";
+        const priceDefault = q.price || "";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "field-row";
+
+        const label = document.createElement("div");
+        label.textContent = labelText;
+        label.style.fontWeight = "600";
+        wrapper.appendChild(label);
+
+        if (type === "select" || type === "radio") {
+          const sel = document.createElement(type === "select" ? "select" : "div");
+          if (type === "select") {
+            sel.innerHTML = "<option value=''>Select</option>";
+            parseOptions(q.options).forEach(o => {
+              const opt = document.createElement("option");
+              opt.value = o.label;
+              opt.textContent = o.label + (o.price ? (" (₹" + o.price + ")") : "");
+              sel.appendChild(opt);
+            });
+            sel.onchange = () => saveField(key, sel.value, category, priceDefault || "");
+          } else { // radio
+            parseOptions(q.options).forEach(o => {
+              const r = document.createElement("input");
+              r.type = "radio";
+              r.name = key;
+              r.value = o.label;
+              r.onchange = () => saveField(key, r.value, category, o.price || "");
+              const rlabel = document.createElement("label");
+              rlabel.className = "checkbox-item";
+              rlabel.appendChild(r);
+              rlabel.appendChild(document.createTextNode(" " + o.label + (o.price ? (" (₹" + o.price + ")") : "")));
+              sel.appendChild(rlabel);
+            });
+          }
+          wrapper.appendChild(sel);
+        } else if (type === "checkbox") {
+          parseOptions(q.options).forEach(o => {
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.id = key + "_" + o.label.replace(/\s+/g, "_");
+            cb.onchange = () => saveField(key + ":" + o.label, cb.checked ? o.label : "", category, o.price || "");
+            const cbLabel = document.createElement("label");
+            cbLabel.className = "checkbox-item";
+            cbLabel.appendChild(cb);
+            cbLabel.appendChild(document.createTextNode(" " + o.label + (o.price ? (" (₹" + o.price + ")") : "")));
+            wrapper.appendChild(cbLabel);
+          });
+        } else if (type === "textarea") {
+          const ta = document.createElement("textarea");
+          ta.rows = 3;
+          ta.cols = 40;
+          ta.onblur = () => saveField(key, ta.value, category, priceDefault);
+          wrapper.appendChild(ta);
+        } else { // text or default
+          const inp = document.createElement("input");
+          inp.type = "text";
+          inp.onblur = () => saveField(key, inp.value, category, priceDefault);
+          wrapper.appendChild(inp);
+        }
+
+        container.appendChild(wrapper);
+      });
+    }
+
+    // ===== load config from Apps Script doGet =====
+    async function loadConfig() {
+      try {
+        const res = await fetch(CONFIG_URL, { cache: "no-store" });
+        const json = await res.json();
+        return json.config || [];
+      } catch (e) {
+        console.error("Failed to load config", e);
+        document.getElementById("status").textContent = "Failed to load form configuration.";
+        return [];
+      }
+    }
+
+    // ===== initialize =====
+    (async function init() {
+      const config = await loadConfig();
+      buildForm(config);
+    })();
+  </script>
+</body>
+</html>
