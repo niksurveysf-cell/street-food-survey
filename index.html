@@ -284,13 +284,13 @@
           if (type === "select") {
             const sel = document.createElement("select");
             setDataKey(sel);
+            // placeholder option: disabled and selected so it's not selectable
             const placeholder = document.createElement("option");
-placeholder.value = "";
-placeholder.textContent = "Select";
-placeholder.disabled = true;   // user cannot select this option
-placeholder.selected = true;   // shown initially
-placeholder.hidden = false;    // still visible as the label in the closed select
-sel.appendChild(placeholder);
+            placeholder.value = "";
+            placeholder.textContent = "Select";
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            sel.appendChild(placeholder);
 
             parseOptions(q.options).forEach(o => {
               const opt = document.createElement("option");
@@ -298,7 +298,12 @@ sel.appendChild(placeholder);
               opt.textContent = o.label;
               sel.appendChild(opt);
             });
-            sel.onchange = () => saveField(key, sel.value, category, priceDefault || "");
+            // only save when a real option is chosen
+            sel.onchange = () => {
+              if (sel.value && sel.value !== "") {
+                saveField(key, sel.value, category, priceDefault || "");
+              }
+            };
             wrapper.appendChild(sel);
           } else {
             const box = document.createElement("div");
@@ -485,4 +490,3 @@ sel.appendChild(placeholder);
   </script>
 </body>
 </html>
-
